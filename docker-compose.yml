@@ -1,0 +1,41 @@
+# Laschuk OLeksandr
+version: "2"
+services:
+# Postgres DB default user="postgres",password="postgres"
+  postgresdb:
+    restart: always
+    image: postgres
+    container_name: "postgresdb"
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+# Flask servise
+  backend:
+    restart: always
+    container_name: "backend"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=1
+    ports:
+      - "5000:5000"
+    command: ["sh", "/backend/flask_run.sh"]
+    depends_on: 
+      - postgresdb
+# Django servise
+  client:
+    restart: always
+    container_name: "client"
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    command: ["sh", "/client/django_run.sh"]
+    ports:
+      - "8000:8000"
+    depends_on: 
+      - backend
+
